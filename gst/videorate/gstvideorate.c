@@ -727,6 +727,14 @@ gst_video_rate_push_buffer (GstVideoRate * videorate, GstBuffer * outbuf,
       "old is best, dup, pushing buffer outgoing ts %" GST_TIME_FORMAT,
       GST_TIME_ARGS (push_ts));
 
+  // Don't duplicate closed captioning
+  if (duplicate) {
+    GstVideoCaptionMeta *ccmeta = gst_buffer_get_video_caption_meta(outbuf);
+    if (ccmeta != NULL) {
+      gst_buffer_remove_meta(outbuf, (GstMeta *)meta);
+    }
+  }
+
   res = gst_pad_push (GST_BASE_TRANSFORM_SRC_PAD (videorate), outbuf);
 
   return res;
